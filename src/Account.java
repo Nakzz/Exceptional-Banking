@@ -71,7 +71,14 @@ public class Account {
     String[] parts = command.split(" ");
     int[] newTransactions = new int[parts.length];
     for (int i = 0; i < parts.length; i++)
-      newTransactions[i] = Integer.parseInt(parts[i]);
+      try {
+        newTransactions[i] = Integer.parseInt(parts[i]);
+      }
+    catch (NumberFormatException e) {
+      throw new DataFormatException(
+        "addTransactionGroup requires string commands that contain only space separated integer values"); 
+      }
+      
     TransactionGroup t = null;
     try {
       t = new TransactionGroup(newTransactions);
@@ -93,8 +100,8 @@ public class Account {
   public int getTransactionAmount(int index) {
     int currTransactionCount = getTransactionCount();
     if (index > currTransactionCount)
-      throw new IndexOutOfBoundsException("Trying to access" + index
-        + " while total transaction count is" + currTransactionCount);
+      throw new IndexOutOfBoundsException("Trying to access index " + index
+        + ", while total transaction count is " + currTransactionCount);
     
     int transactionCount = 0;
     for (int i = 0; i < this.transactionGroupsCount; i++) {

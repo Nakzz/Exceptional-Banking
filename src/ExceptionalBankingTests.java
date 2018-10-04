@@ -1,3 +1,5 @@
+import java.io.File;
+
 //////////////////// ALL ASSIGNMENTS INCLUDE THIS SECTION /////////////////////
 //
 // Title: AccessControl
@@ -26,18 +28,44 @@ public class ExceptionalBankingTests {
   public static void main(String[] args) {
     int fails = 0;
     if (!testAccountBalance()) {
-      System.out.println("testLogin1 [bad username] failed");
+      System.out.println("testAccountBalance failed");
       fails++;
     }
-//    if (!testOverdraftCount()) {
-//      System.out.println("testLogin2 [good login] failed");
-//      fails++;
-//    }
-//    if (!testResetPassword()) {
-//      System.out.println("testResetPassword failed");
-//      fails++;
+    if (!testOverdraftCount()) {
+      System.out.println("testOverdraftCount failed");
+      fails++;
+    }
+//    
+    if(!testTransactionGroupEmpty()) {
+      System.out.println("testTransactionGroupEmpty failed");
+    fails++;
+    }
     
-//    }
+    if(!testTransactionGroupInvalidEncoding()) {
+      System.out.println("testTransactionGroupInvalidEncoding failed");
+    fails++;
+    }
+    
+    if(!testAccountAddNegativeQuickWithdraw()) {
+      System.out.println("testAccountAddNegativeQuickWithdraw failed");
+    fails++;
+    }
+    
+    if(!testAccountBadTransactionGroup()) {
+      System.out.println("testAccountBadTransactionGroup failed");
+    fails++;
+    }
+    if(!testAccountIndexOutOfBounds()) {
+      System.out.println("testAccountIndexOutOfBounds failed");
+    fails++;
+    }
+    
+    if(!testAccountMissingFile()) {
+      System.out.println("testAccountMissingFile failed");
+    fails++;
+    }
+    
+
 
     if (fails == 0)
       System.out.println("All tests passed!");
@@ -49,18 +77,18 @@ public static boolean testAccountBalance() {
   int balance =0;
   
   try {
-    acc.addTransactionGroup("5 10 -20 30 -20 -20");      // -20 
-//  balance = acc.getCurrentBalance();                // correct
-//  System.out.println("Balace for 1: " + balance);       
+    acc.addTransactionGroup("1 10 -20 30 -20 -20");      // -20 
+  balance = acc.getCurrentBalance();                // correct
+  System.out.println("Balace for 1: " + balance);       
   
   acc.addTransactionGroup("0 1 1 1 0 0 1 1 1 1");  // 1 is deposit 0 is subtract so should be +5
-//  balance = acc.getCurrentBalance();
-//  System.out.println("Balace 0: " + balance);       // correct
+  balance = acc.getCurrentBalance();
+  System.out.println("Balace 0: " + balance);       // correct
   
   acc.addTransactionGroup("2 1 2 3 0");         // -(20+ 80 + 240) = -340  
   
   balance = acc.getCurrentBalance();
-//  System.out.println("Balace 2: " + balance);
+  System.out.println("Balace 2: " + balance);
   }
   catch(Exception e) {
     System.out.println(e);
@@ -102,14 +130,58 @@ public static boolean testOverdraftCount() {
  * appropriate message, when it is passed an empty int[].
  * @return true when test verifies correct functionality, and false otherwise.
  */
-public static boolean testTransactionGroupEmpty() { return false; }
+public static boolean testTransactionGroupEmpty() { 
+  
+  
+  int[] transactions = null; 
+  int[] transactions2 = new int[] {};
+  boolean fail=false;
+  
+  try {
+    TransactionGroup acc = new TransactionGroup(transactions); 
+  }
+  catch(Exception e) {
+    System.out.println(e);
+    
+    if (!e.getMessage().equalsIgnoreCase("transaction group encoding cannot be null or empty")) fail=true;
+    
+  }
+  
+  try {
+    TransactionGroup acc = new TransactionGroup(transactions2); 
+  }
+  catch(Exception e) {
+    System.out.println(e);
+    if (!e.getMessage().equalsIgnoreCase("transaction group encoding cannot be null or empty")) fail=true;
+  }
+  
+  if(!fail) return true;
+  
+  return false; }
  
 /**
  * This method checks whether the TransactionGroup constructor throws an exception with an
  * appropriate message, when then first int in the provided array is not 0, 1, or 2.
  * @return true when test verifies correct functionality, and false otherwise.
  */
-public static boolean testTransactionGroupInvalidEncoding() { return false; }
+public static boolean testTransactionGroupInvalidEncoding() {   
+
+  int[] transactions = new int[] {5, 9, 4};
+  boolean fail=false;
+  
+  try {
+    TransactionGroup acc = new TransactionGroup(transactions); 
+  }
+  catch(Exception e) {
+    System.out.println(e);
+    
+    if (!e.getMessage().equalsIgnoreCase("the first element within a transaction group must be 0, 1, or 2")) fail=true;
+    
+  }
+  
+  if(!fail) return true;
+  
+  return false; }
  
 /**
  * This method checks whether the Account.addTransactionGroup method throws an exception with an
@@ -117,21 +189,74 @@ public static boolean testTransactionGroupInvalidEncoding() { return false; }
  * numbers of withdraws.
  * @return true when test verifies correct functionality, and false otherwise.
  */
-public static boolean testAccountAddNegativeQuickWithdraw() { return false; }
+public static boolean testAccountAddNegativeQuickWithdraw() {   
+  int[] transactions = new int[] {2, -2, -5, 2, 6};
+boolean fail=false;
+
+try {
+  TransactionGroup acc = new TransactionGroup(transactions); 
+}
+catch(Exception e) {
+  System.out.println(e);
+  
+  if (!e.getMessage().equalsIgnoreCase("quick withdraw transaction groups may not contain negative numbers")) fail=true;
+  
+}
+
+
+if(!fail) return true;
+
+return false; 
+
+}
  
 /**
  * This method checks whether the Account.addTransactionGroup method throws an exception with an
  * appropriate message, when it is passed a string with space separated English words (non-int).
  * @return true when test verifies correct functionality, and false otherwise.
  */
-public static boolean testAccountBadTransactionGroup() { return false; }
+public static boolean testAccountBadTransactionGroup() { 
+  Account acc = new Account("testAccountBadTransactionGroup"); 
+  boolean fail=false;
+  
+  try {
+    acc.addTransactionGroup("f u c k t h o t s o n g o d @uwmadison");
+  }
+  catch(Exception e) {
+    System.out.println(e);
+    
+    if (!e.getMessage().equalsIgnoreCase("addTransactionGroup requires string commands that contain only space separated integer values")) fail=true;
+  }
+  
+  if(!fail) return true;
+  return false; 
+
+}
  
 /**
  * This method checks whether the Account.getTransactionAmount method throws an exception with an
  * appropriate message, when it is passed an index that is out of bounds.
  * @return true when test verifies correct functionality, and false otherwise.
  */
-public static boolean testAccountIndexOutOfBounds() { return false; }
+public static boolean testAccountIndexOutOfBounds() { 
+  Account acc = new Account("testAccountIndexOutOfBounds"); 
+  boolean fail=false;
+  int index =2;
+  int currTransactionCount = acc.getTransactionCount();
+  
+  try {
+    acc.getTransactionAmount(2);
+  }
+  catch(Exception e) {
+    System.out.println(e);
+    
+    if (!e.getMessage().equalsIgnoreCase("Trying to access index " + index
+      + ", while total transaction count is " + currTransactionCount)) fail=true;
+  }
+  
+  if(!fail) return true;
+  return false; 
+ }
  
 /**
  * This method checks whether the Account constructor that takes a File parameter throws an 
@@ -139,6 +264,22 @@ public static boolean testAccountIndexOutOfBounds() { return false; }
  * to an actual file within the file system.
  * @return true when test verifies correct functionality, and false otherwise.
  */
-public static boolean testAccountMissingFile() { return false; }
+public static boolean testAccountMissingFile() { 
+  
+  boolean fail=false;
+  File dummyFile = new File("../DNE.txt"); 
+  try {
+    Account acc = new Account(dummyFile); 
+  }
+  catch(Exception e) {
+    System.out.println(e);
+    
+    if (!e.getMessage().equalsIgnoreCase("File does not exist. Please check the directory.")) fail=true;
+  }
+  
+  if(!fail) return true;
+  
+  
+  return false; }
 
 }

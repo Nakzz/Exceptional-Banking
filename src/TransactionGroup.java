@@ -11,33 +11,35 @@ public class TransactionGroup {
 
   //@throws DataFormatException
   public TransactionGroup(int[] groupEncoding) throws DataFormatException {
+    
+    if(groupEncoding == null || groupEncoding.length<= 0 )  throw new DataFormatException("transaction group encoding cannot be null or empty");
+    
     try {
       this.type = EncodingType.values()[groupEncoding[0]];
-    } catch (NullPointerException e) {
-      throw new DataFormatException("transaction group encoding cannot be null or empty");
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new DataFormatException(
-        "the first element within a transaction group must be 0, 1, or 2\"");
+        "the first element within a transaction group must be 0, 1, or 2");
     }
 
+//    this.type = EncodingType.values()[groupEncoding[0]];
     this.values = new int[groupEncoding.length - 1];
     for (int i = 0; i < values.length; i++) {
 
       switch (this.type) {
         case BINARY_AMOUNT:
-          if (this.values[i] == 0 || this.values[i] == 1)
+          if (!(groupEncoding[i + 1] == 0 || groupEncoding[i + 1] == 1))
             throw new DataFormatException(
               "binary amount transaction groups may only contain 0s and 1s");
           break;
         case INTEGER_AMOUNT:
-          if (this.values[i] == 0)
+          if (groupEncoding[i + 1] == 0)
             throw new DataFormatException("integer amount transaction groups may not contain 0s");
           break;
         case QUICK_WITHDRAW:
-          if (!(values.length == 5))
+          if (!(groupEncoding.length == 5))
             throw new DataFormatException(
               "quick withdraw transaction groups must contain 5 elements");
-          if (this.values[i] < 0)
+          if (groupEncoding[i + 1] < 0)
             throw new DataFormatException(
               "quick withdraw transaction groups may not contain negative numbers");
           break;
