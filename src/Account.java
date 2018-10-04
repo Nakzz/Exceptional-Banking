@@ -32,7 +32,7 @@ public class Account {
       in = new Scanner(file);
     }
     catch(FileNotFoundException e) {
-      throw new FileNotFoundException("File does not exist. Please check the directory.");
+      throw new FileNotFoundException( file +" does not exist. Please check the directory.");
     }
     finally {
       in = new Scanner(System.in);

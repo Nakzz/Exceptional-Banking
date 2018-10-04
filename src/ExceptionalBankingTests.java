@@ -267,14 +267,14 @@ public static boolean testAccountIndexOutOfBounds() {
 public static boolean testAccountMissingFile() { 
   
   boolean fail=false;
-  File dummyFile = new File("../DNE.txt"); 
+  File dummyFile = new File("DNE.txt"); 
   try {
     Account acc = new Account(dummyFile); 
   }
   catch(Exception e) {
     System.out.println(e);
     
-    if (!e.getMessage().equalsIgnoreCase("File does not exist. Please check the directory.")) fail=true;
+    if (!e.getMessage().equalsIgnoreCase(dummyFile + " does not exist. Please check the directory.")) fail=true;
   }
   
   if(!fail) return true;
